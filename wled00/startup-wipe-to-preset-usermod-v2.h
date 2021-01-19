@@ -44,6 +44,8 @@ public:
   {
     bri = briLast;           //turn on
     transitionDelayTemp = 0; //no transition
+    //TODO: read the color from some default/startup preset?
+    colorFromUint32(0x21FF21); //default color is lost when rebooting/powering up - thus set custom color: neon green
     effectCurrent = FX_MODE_COLOR_WIPE;
     resetTimebase(); //make sure wipe starts from beginning
     colorUpdated(NOTIFIER_CALL_MODE_NOTIFICATION);
