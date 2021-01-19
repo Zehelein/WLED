@@ -1,4 +1,5 @@
 #include "wled.h"
+#include "startup-wipe-to-preset-usermod-v2.h"
 /*
  * Register your v2 usermods here!
  *   (for v1 usermods using just usermod.cpp, you can ignore this file)
@@ -39,4 +40,5 @@ void registerUsermods()
 #ifdef USERMOD_SENSORSTOMQTT
   usermods.add(new UserMod_SensorsToMQTT());
 #endif
+  usermods.add(new StartupWipeToPresetUsermod());
 }
