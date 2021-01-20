@@ -15,6 +15,59 @@ private:
   //Private class members.
   byte wipeState = 0; //0: inactive 1: wiping 2: preset started
 
+  void getWipeColorFromPreset(byte index)
+  {
+    if (fileDoc)
+    {
+      errorFlag = readObjectFromFileUsingId("/presets.json", index, fileDoc) ? ERR_NONE : ERR_FS_PLOAD;
+      JsonObject fdo = fileDoc->as<JsonObject>();
+      getWipeColorFromPresetJson(fdo);
+    }
+    else
+    {
+      DynamicJsonDocument fDoc(JSON_BUFFER_SIZE);
+      errorFlag = readObjectFromFileUsingId("/presets.json", index, &fDoc) ? ERR_NONE : ERR_FS_PLOAD;
+      JsonObject fdo = fDoc.as<JsonObject>();
+      getWipeColorFromPresetJson(fdo);
+    }
+  }
+
+  void getWipeColorFromPresetJson(JsonObject root)
+  {
+    JsonVariant segVar = root["seg"];
+    if (segVar.is<JsonObject>())
+    {
+      int id = segVar[F("id")] | -1;
+      if (id >= 0)
+      {
+        getWipeColorFromPresetSeg(segVar);
+      }
+    }
+    else
+    {
+      JsonArray segs = segVar.as<JsonArray>();
+      JsonObject segItem = segs.getElement(0);
+      getWipeColorFromPresetSeg(segItem);
+    }
+  }
+
+  void getWipeColorFromPresetSeg(JsonObject elem)
+  {
+    JsonArray colarr = elem[F("col")];
+    if (!colarr.isNull())
+    {
+      JsonArray colX = colarr[0];
+      byte sz = colX.size();
+      if (sz > 2)
+      {
+        col[0] = colX[0];
+        col[1] = colX[1];
+        col[2] = colX[2];
+        //col[3] = rgbw[3];
+      }
+    }
+  }
+
 public:
   void loop()
   {
@@ -44,8 +97,7 @@ public:
   {
     bri = briLast;           //turn on
     transitionDelayTemp = 0; //no transition
-    //TODO: read the color from some default/startup preset?
-    colorFromUint32(0x21FF21); //default color is lost when rebooting/powering up - thus set custom color: neon green
+    getWipeColorFromPreset(99);
     effectCurrent = FX_MODE_COLOR_WIPE;
     resetTimebase(); //make sure wipe starts from beginning
     colorUpdated(NOTIFIER_CALL_MODE_NOTIFICATION);
