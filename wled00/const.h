@@ -22,6 +22,7 @@
 #define USERMOD_ID_PIRSWITCH      5            //Usermod "usermod_PIR_sensor_switch.h"
 #define USERMOD_ID_IMU            6            //Usermod "usermod_mpu6050_imu.h"
 #define USERMOD_ID_STARTUP_WIPE   7            //Usermod "startup-wipe-to-preset-usermod-v2.h"
+#define USERMOD_ID_SHUTDOWN_WIPE  8            //Usermod "shutdown-wipe-usermod-v2.h"
 
 //Access point behavior
 #define AP_BEHAVIOR_BOOT_NO_CONN  0            //Open AP when no connection after boot

@@ -7,6 +7,7 @@
  * Using this usermod:
  * 1. Copy the usermod into the sketch folder (same folder as wled00.ino)
  * 2. Register the usermod by adding `#include "startup-wipe-to-preset-usermod-v2.h"` in the top and `usermods.add(new StartupWipeToPresetUsermod());` in the bottom of usermods_list.cpp
+ * 3. Adjust the `json.cpp` file to check if power actually switched and set there `userVar0 = 1;`
  */
 
 class StartupWipeToPresetUsermod : public Usermod
@@ -71,6 +72,13 @@ private:
 public:
   void loop()
   {
+    // trigger via API or from other code
+    if (userVar0 == 1)
+    {
+      wipeState = 0;
+      userVar0 = 0;
+    }
+
     if (wipeState == 0)
     {
       startWipe();
@@ -78,8 +86,8 @@ public:
     }
     else if (wipeState == 1)
     {
-      uint32_t cycleTime = 360 + (255 - effectSpeed) * 75; //this is how long one wipe takes (minus 25 ms to make sure we switch in time)
-      if (millis() + strip.timebase > (cycleTime - 25))
+      uint32_t cycleTime = 360 + (255 - effectSpeed) * 75; //this is how long one wipe takes (minus 5 ms to make sure we switch in time)
+      if (millis() + strip.timebase > (cycleTime - 5))
       { //wipe complete
         wipeState = 2;
         applyPreset(1);
@@ -98,8 +106,15 @@ public:
     bri = briLast;           //turn on
     transitionDelayTemp = 0; //no transition
     getWipeColorFromPreset(99);
+    colorFromUint32(0x000000, true);
     effectCurrent = FX_MODE_COLOR_WIPE;
+    effectSpeed = 222;
     resetTimebase(); //make sure wipe starts from beginning
+
+    //set wipe direction forward
+    WS2812FX::Segment &seg = strip.getSegment(0);
+    seg.setOption(1, false);
+
     colorUpdated(NOTIFIER_CALL_MODE_NOTIFICATION);
   }
 };

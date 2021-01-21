@@ -161,32 +161,42 @@ bool deserializeState(JsonObject root)
   bri = root["bri"] | bri;
   
   bool on = root["on"] | (bri > 0);
-  if (!on != !bri) toggleOnOff();
+  if (!on != !bri) {
+    // start usermod startup/shutdown
+    if (on) {
+      userVar0 = 1;
+    } else {
+      userVar0 = 2;
+    }
+    // set to off but with a very long delay so API response can return an "on" or "off" directly
+    transitionDelayTemp = 1000;
+    toggleOnOff();
+  } else {
+    int tr = root[F("transition")] | -1;
+    if (tr >= 0)
+    {
+      transitionDelay = tr;
+      transitionDelay *= 100;
+      transitionDelayTemp = transitionDelay;
+    }
 
-  int tr = root[F("transition")] | -1;
-  if (tr >= 0)
-  {
-    transitionDelay = tr;
-    transitionDelay *= 100;
-    transitionDelayTemp = transitionDelay;
+    tr = root[F("tt")] | -1;
+    if (tr >= 0)
+    {
+      transitionDelayTemp = tr;
+      transitionDelayTemp *= 100;
+      jsonTransitionOnce = true;
+    }
+    strip.setTransition(transitionDelayTemp);
+    
+    int cy = root[F("pl")] | -2;
+    if (cy > -2) presetCyclingEnabled = (cy >= 0);
+    JsonObject ccnf = root["ccnf"];
+    presetCycleMin = ccnf[F("min")] | presetCycleMin;
+    presetCycleMax = ccnf[F("max")] | presetCycleMax;
+    tr = ccnf[F("time")] | -1;
+    if (tr >= 2) presetCycleTime = tr;
   }
-
-  tr = root[F("tt")] | -1;
-  if (tr >= 0)
-  {
-    transitionDelayTemp = tr;
-    transitionDelayTemp *= 100;
-    jsonTransitionOnce = true;
-  }
-  strip.setTransition(transitionDelayTemp);
-  
-  int cy = root[F("pl")] | -2;
-  if (cy > -2) presetCyclingEnabled = (cy >= 0);
-  JsonObject ccnf = root["ccnf"];
-  presetCycleMin = ccnf[F("min")] | presetCycleMin;
-  presetCycleMax = ccnf[F("max")] | presetCycleMax;
-  tr = ccnf[F("time")] | -1;
-  if (tr >= 2) presetCycleTime = tr;
 
   JsonObject nl = root["nl"];
   nightlightActive    = nl["on"]      | nightlightActive;
