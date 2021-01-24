@@ -159,7 +159,8 @@ uint16_t WS2812FX::color_wipe(bool rev, bool useRandomColors) {
       setPixelColor(index, back? col1 : col0);
     } else
     {
-      setPixelColor(index, back? col0 : col1);
+      // As I use wipe for shutdown I want to keep whatever the current lights were when shutdown is initiated
+      // setPixelColor(index, back? col0 : col1);
       if (i == ledIndex) setPixelColor(index, color_blend(back? col0 : col1, back? col1 : col0, rem));
     }
   } 

@@ -14,7 +14,7 @@ class ShutdownWipeUsermod : public Usermod
 {
 private:
   //Private class members.
-  byte wipeState = 0; //0: inactive 1: wiping 2: shutdown finished
+  byte wipeState = 0; //0: inactive 1: wiping
 
 public:
   void loop()
@@ -31,7 +31,7 @@ public:
       uint32_t cycleTime = 360 + (255 - effectSpeed) * 75; //this is how long one wipe takes (minus 5 ms to make sure we switch in time)
       if (millis() + strip.timebase > (cycleTime - 5))
       { //wipe complete
-        wipeState = 2;
+        wipeState = 0;
         toggleOnOff();
         colorUpdated(NOTIFIER_CALL_MODE_NOTIFICATION);
       }
